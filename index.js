@@ -1,5 +1,6 @@
 const helper = require('./methods.js');
 const csv = require('fast-csv');
+const pool = require('tiny-async-pool');
 
 //Following variables get the path of the current directory and the csv filename
 let dirPath = __dirname;
@@ -35,12 +36,13 @@ let csvStream = csv.fromPath(dirPath + fileName, {headers: true, objectMode: tru
     })
     .on('end', () => {
         console.log("Done getting urls, attemping GET requests, please hold.");
+        console.log('Numbers of URLs to make a GET request on is ', urls.length);
 
-        //GET requests are made for each URL
-        const promises = urls.map(url => helper.getStatus(url));
-
-        Promise.all(promises).then(data => {
-
+        //Runs 100 get requests at a time until complete 
+        //Pushes errors and unsuccessful requests into records array
+        //Then tallys up successful and unsuccessful requests
+        pool(100, urls, helper.getStatus)
+        .then(data => {
             data.forEach(result => {
                 if(typeof result[1] === 'object'){
                     records.push([urlMap[result[0]], result[0]]);
