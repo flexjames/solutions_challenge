@@ -15,7 +15,6 @@ function getRes(url){
             if(err){
                 return reject([url, err]);
             } 
-            //console.log('getRes is ', res.statusCode)
             resolve([url,res.statusCode]);
         });
     });
@@ -24,10 +23,8 @@ function getRes(url){
 async function getStatus(url){
     try {
         var res = await getRes(url);
-        //console.log('res is ', res);
         return res;
     } catch (err){
-        //console.error(err);
         return err;
     };
 }
